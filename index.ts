@@ -1,12 +1,27 @@
 import puppeteer from 'puppeteer'
 import config from './config.json'
-import fs from 'fs/promises'
-
+import * as fs from 'fs'
+import https from 'https'
 
 async function sleep(ms: number): Promise<void> {
 	await new Promise(ok => setTimeout(() => ok(null), ms))
 }
 
+const download = (url: string, destination: any) => new Promise((resolve, reject) => {
+	const file = fs.createWriteStream(destination);
+
+	https.get(url, response => {
+		response.pipe(file);
+
+		file.on('finish', () => {
+			file.close()
+			resolve(true)
+		});
+	}).on('error', error => {
+		fs.unlink(destination, () => reject(error));
+		reject(error.message);
+	});
+});
 
 async function main() {
 
@@ -16,24 +31,14 @@ async function main() {
         // On se dirige sur la page de login
         const page = await browser.newPage()
 		await page.goto('https://web.familinkframe.com/fr/#/login')
+		await sleep(100)
 
         try {
-            // On récupère le champ de login et on le remplit
-            const loginField = await page.$<HTMLInputElement>('#email')
-			if (!loginField) throw new Error('no need to log in')
-
-			await loginField.evaluate(
-				(x, login) => (x.value = login),
-				config.login
-			)
-
-            // On récupère le champ du mot de passe et on le remplit
-            const passwordField = await page.$<HTMLInputElement>('#password')
-			await passwordField?.evaluate(
-				(x, password) => (x.value = password),
-				config.password
-			)
-
+            // On récupère le champ de login et de password et on les remplits
+			await page.waitForSelector('#email');
+			await page.type('#email', config.login, {delay: 25})
+			await page.type('#password', config.password, {delay: 25})
+			
             // On envoie le formulaire
             await page.evaluate(() =>
 				document.querySelector<HTMLInputElement>('.connect-button')!.click()
@@ -52,6 +57,28 @@ async function main() {
         } catch (e) {
             console.log('Login Error', e)
         }
+
+		{
+			let result;
+			await page.goto('https://web.familinkframe.com/fr/#/devices/16961/photos')
+			await sleep(5000)
+			const images = await page.evaluate(() => Array.from(document.images, e => e.src.replace('thumbnails', 'resized').replace('_360x285', '')));
+			console.log(images[0])
+			for (let i = 0; i < images.length; i++) {
+				console.log(i, images[i])
+				if(images[i].startsWith('https://media.familinkframe.com/')) {
+					result = await download(images[i], `images/${images[i].split(/[\/]/).pop()?.replace(/.png|.jpg|.jpeg/gi,'')}.png`);
+					if (result === true) {
+						console.log('Success:', images[i], 'has been downloaded successfully.');
+					} else {
+						console.log('Error:', images[i], 'was not downloaded.');
+						console.error(result);
+					}
+				}
+			
+				
+			}
+		}
 
     } finally {
         await browser.close()

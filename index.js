@@ -1,4 +1,27 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -41,7 +64,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 exports.__esModule = true;
 var puppeteer_1 = __importDefault(require("puppeteer"));
 var config_json_1 = __importDefault(require("./config.json"));
-require("fs/promises");
+var fs = __importStar(require("fs"));
+var https_1 = __importDefault(require("https"));
 function sleep(ms) {
     return __awaiter(this, void 0, void 0, function () {
         return __generator(this, function (_a) {
@@ -54,44 +78,56 @@ function sleep(ms) {
         });
     });
 }
+var download = function (url, destination) { return new Promise(function (resolve, reject) {
+    var file = fs.createWriteStream(destination);
+    https_1["default"].get(url, function (response) {
+        response.pipe(file);
+        file.on('finish', function () {
+            file.close();
+            resolve(true);
+        });
+    }).on('error', function (error) {
+        fs.unlink(destination, function () { return reject(error); });
+        reject(error.message);
+    });
+}); };
 function main() {
+    var _a;
     return __awaiter(this, void 0, void 0, function () {
-        var browser, page, loginField, passwordField, url, e_1, e_2;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
+        var browser, page, url, e_1, e_2, result, images, i;
+        return __generator(this, function (_b) {
+            switch (_b.label) {
                 case 0: return [4 /*yield*/, puppeteer_1["default"].launch({ headless: config_json_1["default"].headless })];
                 case 1:
-                    browser = _a.sent();
-                    _a.label = 2;
+                    browser = _b.sent();
+                    _b.label = 2;
                 case 2:
-                    _a.trys.push([2, , 20, 22]);
+                    _b.trys.push([2, , 27, 29]);
                     return [4 /*yield*/, browser.newPage()];
                 case 3:
-                    page = _a.sent();
+                    page = _b.sent();
                     return [4 /*yield*/, page.goto('https://web.familinkframe.com/fr/#/login')];
                 case 4:
-                    _a.sent();
-                    _a.label = 5;
+                    _b.sent();
+                    return [4 /*yield*/, sleep(100)];
                 case 5:
-                    _a.trys.push([5, 18, , 19]);
-                    return [4 /*yield*/, page.$('#email')];
+                    _b.sent();
+                    _b.label = 6;
                 case 6:
-                    loginField = _a.sent();
-                    if (!loginField)
-                        throw new Error('no need to log in');
-                    return [4 /*yield*/, loginField.evaluate(function (x, login) { return (x.value = login); }, config_json_1["default"].login)
-                        // On récupère le champ du mot de passe et on le remplit
-                    ];
+                    _b.trys.push([6, 18, , 19]);
+                    // On récupère le champ de login et de password et on les remplits
+                    return [4 /*yield*/, page.waitForSelector('#email')];
                 case 7:
-                    _a.sent();
-                    return [4 /*yield*/, page.$('#password')];
+                    // On récupère le champ de login et de password et on les remplits
+                    _b.sent();
+                    return [4 /*yield*/, page.type('#email', config_json_1["default"].login, { delay: 25 })];
                 case 8:
-                    passwordField = _a.sent();
-                    return [4 /*yield*/, (passwordField === null || passwordField === void 0 ? void 0 : passwordField.evaluate(function (x, password) { return (x.value = password); }, config_json_1["default"].password))
+                    _b.sent();
+                    return [4 /*yield*/, page.type('#password', config_json_1["default"].password, { delay: 25 })
                         // On envoie le formulaire
                     ];
                 case 9:
-                    _a.sent();
+                    _b.sent();
                     // On envoie le formulaire
                     return [4 /*yield*/, page.evaluate(function () {
                             return document.querySelector('.connect-button').click();
@@ -100,38 +136,70 @@ function main() {
                     ];
                 case 10:
                     // On envoie le formulaire
-                    _a.sent();
-                    _a.label = 11;
+                    _b.sent();
+                    _b.label = 11;
                 case 11:
                     if (!true) return [3 /*break*/, 17];
-                    _a.label = 12;
+                    _b.label = 12;
                 case 12:
-                    _a.trys.push([12, 14, , 15]);
+                    _b.trys.push([12, 14, , 15]);
                     return [4 /*yield*/, page.evaluate(function () { return location.href; })];
                 case 13:
-                    url = _a.sent();
+                    url = _b.sent();
                     if (url.match('https://web.familinkframe.com/fr/#/devices'))
                         return [3 /*break*/, 17];
                     return [3 /*break*/, 15];
                 case 14:
-                    e_1 = _a.sent();
+                    e_1 = _b.sent();
                     console.log(e_1);
                     return [3 /*break*/, 15];
                 case 15: return [4 /*yield*/, sleep(100)];
                 case 16:
-                    _a.sent();
+                    _b.sent();
                     return [3 /*break*/, 11];
                 case 17: return [3 /*break*/, 19];
                 case 18:
-                    e_2 = _a.sent();
+                    e_2 = _b.sent();
                     console.log('Login Error', e_2);
                     return [3 /*break*/, 19];
-                case 19: return [3 /*break*/, 22];
-                case 20: return [4 /*yield*/, browser.close()];
+                case 19:
+                    result = void 0;
+                    return [4 /*yield*/, page.goto('https://web.familinkframe.com/fr/#/devices/16961/photos')];
+                case 20:
+                    _b.sent();
+                    return [4 /*yield*/, sleep(5000)];
                 case 21:
-                    _a.sent();
+                    _b.sent();
+                    return [4 /*yield*/, page.evaluate(function () { return Array.from(document.images, function (e) { return e.src.replace('thumbnails', 'resized').replace('_360x285', ''); }); })];
+                case 22:
+                    images = _b.sent();
+                    console.log(images[0]);
+                    i = 0;
+                    _b.label = 23;
+                case 23:
+                    if (!(i < images.length)) return [3 /*break*/, 26];
+                    console.log(i, images[i]);
+                    if (!images[i].startsWith('https://media.familinkframe.com/')) return [3 /*break*/, 25];
+                    return [4 /*yield*/, download(images[i], "images/".concat((_a = images[i].split(/[\/]/).pop()) === null || _a === void 0 ? void 0 : _a.replace(/.png|.jpg|.jpeg/gi, ''), ".png"))];
+                case 24:
+                    result = _b.sent();
+                    if (result === true) {
+                        console.log('Success:', images[i], 'has been downloaded successfully.');
+                    }
+                    else {
+                        console.log('Error:', images[i], 'was not downloaded.');
+                        console.error(result);
+                    }
+                    _b.label = 25;
+                case 25:
+                    i++;
+                    return [3 /*break*/, 23];
+                case 26: return [3 /*break*/, 29];
+                case 27: return [4 /*yield*/, browser.close()];
+                case 28:
+                    _b.sent();
                     return [7 /*endfinally*/];
-                case 22: return [2 /*return*/];
+                case 29: return [2 /*return*/];
             }
         });
     });
