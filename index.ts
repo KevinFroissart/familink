@@ -23,9 +23,8 @@ const download = (url: string, destination: any) => new Promise((resolve, reject
 	});
 });
 
-async function main() {
-
-    // Ouverture du navigateur
+async function scrapImages() {
+	// Ouverture du navigateur
     const browser = await puppeteer.launch({ headless: config.headless })
     try {
         // On se dirige sur la page de login
@@ -65,9 +64,9 @@ async function main() {
 			const images = await page.evaluate(() => Array.from(document.images, e => e.src.replace('thumbnails', 'resized').replace('_360x285', '')));
 			console.log(images[0])
 			for (let i = 0; i < images.length; i++) {
-				console.log(i, images[i])
 				if(images[i].startsWith('https://media.familinkframe.com/')) {
-					result = await download(images[i], `images/${images[i].split(/[\/]/).pop()?.replace(/.png|.jpg|.jpeg/gi,'')}.png`);
+					console.log(i, images[i])
+					result = await download(images[i], `images/${images[i].split(/[\/]/).pop()?.replace(/.png|.jpg|.jpeg/gi,'')}.jpg`);
 					if (result === true) {
 						console.log('Success:', images[i], 'has been downloaded successfully.');
 					} else {
@@ -75,14 +74,16 @@ async function main() {
 						console.error(result);
 					}
 				}
-			
-				
 			}
 		}
-
     } finally {
         await browser.close()
     }
+}
+
+async function main() {
+
+	scrapImages()
 
 }
 

@@ -91,7 +91,7 @@ var download = function (url, destination) { return new Promise(function (resolv
         reject(error.message);
     });
 }); };
-function main() {
+function scrapImages() {
     var _a;
     return __awaiter(this, void 0, void 0, function () {
         var browser, page, url, e_1, e_2, result, images, i;
@@ -178,9 +178,9 @@ function main() {
                     _b.label = 23;
                 case 23:
                     if (!(i < images.length)) return [3 /*break*/, 26];
-                    console.log(i, images[i]);
                     if (!images[i].startsWith('https://media.familinkframe.com/')) return [3 /*break*/, 25];
-                    return [4 /*yield*/, download(images[i], "images/".concat((_a = images[i].split(/[\/]/).pop()) === null || _a === void 0 ? void 0 : _a.replace(/.png|.jpg|.jpeg/gi, ''), ".png"))];
+                    console.log(i, images[i]);
+                    return [4 /*yield*/, download(images[i], "images/".concat((_a = images[i].split(/[\/]/).pop()) === null || _a === void 0 ? void 0 : _a.replace(/.png|.jpg|.jpeg/gi, ''), ".jpg"))];
                 case 24:
                     result = _b.sent();
                     if (result === true) {
@@ -201,6 +201,14 @@ function main() {
                     return [7 /*endfinally*/];
                 case 29: return [2 /*return*/];
             }
+        });
+    });
+}
+function main() {
+    return __awaiter(this, void 0, void 0, function () {
+        return __generator(this, function (_a) {
+            scrapImages();
+            return [2 /*return*/];
         });
     });
 }
