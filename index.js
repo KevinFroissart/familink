@@ -79,22 +79,24 @@ function sleep(ms) {
     });
 }
 var download = function (url, destination) { return new Promise(function (resolve, reject) {
-    var file = fs.createWriteStream(destination);
-    https_1["default"].get(url, function (response) {
-        response.pipe(file);
-        file.on('finish', function () {
-            file.close();
-            resolve(true);
+    var file = fs.createWriteStream(destination, { flags: 'a+' });
+    try {
+        https_1["default"].get(url, function (response) {
+            response.pipe(file);
+            file.on('finish', function () {
+                file.close();
+                resolve(true);
+            });
         });
-    }).on('error', function (error) {
-        fs.unlink(destination, function () { return reject(error); });
-        reject(error.message);
-    });
+    }
+    catch (e) {
+        console.log(e);
+    }
 }); };
 function scrapImages() {
     var _a;
     return __awaiter(this, void 0, void 0, function () {
-        var browser, page, url, e_1, e_2, result, images, i;
+        var browser, page, url, e_1, e_2, result, images, i, e_3;
         return __generator(this, function (_b) {
             switch (_b.label) {
                 case 0: return [4 /*yield*/, puppeteer_1["default"].launch({ headless: config_json_1["default"].headless })];
@@ -102,7 +104,7 @@ function scrapImages() {
                     browser = _b.sent();
                     _b.label = 2;
                 case 2:
-                    _b.trys.push([2, , 27, 29]);
+                    _b.trys.push([2, , 29, 31]);
                     return [4 /*yield*/, browser.newPage()];
                 case 3:
                     page = _b.sent();
@@ -177,11 +179,14 @@ function scrapImages() {
                     i = 0;
                     _b.label = 23;
                 case 23:
-                    if (!(i < images.length)) return [3 /*break*/, 26];
-                    if (!images[i].startsWith('https://media.familinkframe.com/')) return [3 /*break*/, 25];
+                    if (!(i < images.length)) return [3 /*break*/, 28];
+                    if (!images[i].startsWith('https://media.familinkframe.com/')) return [3 /*break*/, 27];
                     console.log(i, images[i]);
-                    return [4 /*yield*/, download(images[i], "images/".concat((_a = images[i].split(/[\/]/).pop()) === null || _a === void 0 ? void 0 : _a.replace(/.png|.jpg|.jpeg/gi, ''), ".jpg"))];
+                    _b.label = 24;
                 case 24:
+                    _b.trys.push([24, 26, , 27]);
+                    return [4 /*yield*/, download(images[i], "images/".concat((_a = images[i].split(/[\/]/).pop()) === null || _a === void 0 ? void 0 : _a.replace(/.png|.jpg|.jpeg/gi, ''), ".jpg"))];
+                case 25:
                     result = _b.sent();
                     if (result === true) {
                         console.log('Success:', images[i], 'has been downloaded successfully.');
@@ -190,16 +195,20 @@ function scrapImages() {
                         console.log('Error:', images[i], 'was not downloaded.');
                         console.error(result);
                     }
-                    _b.label = 25;
-                case 25:
+                    return [3 /*break*/, 27];
+                case 26:
+                    e_3 = _b.sent();
+                    console.log(e_3);
+                    return [3 /*break*/, 27];
+                case 27:
                     i++;
                     return [3 /*break*/, 23];
-                case 26: return [3 /*break*/, 29];
-                case 27: return [4 /*yield*/, browser.close()];
-                case 28:
+                case 28: return [3 /*break*/, 31];
+                case 29: return [4 /*yield*/, browser.close()];
+                case 30:
                     _b.sent();
                     return [7 /*endfinally*/];
-                case 29: return [2 /*return*/];
+                case 31: return [2 /*return*/];
             }
         });
     });

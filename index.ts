@@ -8,19 +8,20 @@ async function sleep(ms: number): Promise<void> {
 }
 
 const download = (url: string, destination: any) => new Promise((resolve, reject) => {
-	const file = fs.createWriteStream(destination);
+	const file = fs.createWriteStream(destination, { flags: 'a+' });
 
-	https.get(url, response => {
-		response.pipe(file);
+	try {
+		https.get(url, response => {
+			response.pipe(file);
 
-		file.on('finish', () => {
-			file.close()
-			resolve(true)
-		});
-	}).on('error', error => {
-		fs.unlink(destination, () => reject(error));
-		reject(error.message);
-	});
+			file.on('finish', () => {
+				file.close()
+				resolve(true)
+			});
+		})
+	} catch (e) {
+		console.log(e)
+	}
 });
 
 async function scrapImages() {
@@ -66,12 +67,16 @@ async function scrapImages() {
 			for (let i = 0; i < images.length; i++) {
 				if(images[i].startsWith('https://media.familinkframe.com/')) {
 					console.log(i, images[i])
-					result = await download(images[i], `images/${images[i].split(/[\/]/).pop()?.replace(/.png|.jpg|.jpeg/gi,'')}.jpg`);
-					if (result === true) {
-						console.log('Success:', images[i], 'has been downloaded successfully.');
-					} else {
-						console.log('Error:', images[i], 'was not downloaded.');
-						console.error(result);
+					try {
+						result = await download(images[i], `images/${images[i].split(/[\/]/).pop()?.replace(/.png|.jpg|.jpeg/gi,'')}.jpg`);
+						if (result === true) {
+							console.log('Success:', images[i], 'has been downloaded successfully.');
+						} else {
+							console.log('Error:', images[i], 'was not downloaded.');
+							console.error(result);
+						}
+					} catch (e) {
+						console.log(e)
 					}
 				}
 			}
