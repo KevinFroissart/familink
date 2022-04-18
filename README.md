@@ -1,5 +1,5 @@
 # Familink Carousel
-Dynamic Familink scrapper and Windows Carousel (made for wedding)
+Dynamic Familink scrapper and Windows Carousel (made for a wedding)
 
 ## REQUIRED (windows)
 [https://github.com/torum/Image-viewer](https://github.com/torum/Image-viewer)   
