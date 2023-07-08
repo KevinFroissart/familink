@@ -28,6 +28,14 @@ const download = (url: string, destination: string) => new Promise<boolean>((res
 	});
 });
 
+async function imageExists(imagePath: string): Promise<boolean> {
+	return new Promise<boolean>((resolve) => {
+		fs.access(imagePath, fs.constants.F_OK, (error) => {
+			resolve(!error);
+		});
+	});
+}
+
 async function scrapImages() {
 	// Ouverture du navigateur
     const browser = await puppeteer.launch({ headless: config.headless })
@@ -74,6 +82,15 @@ async function scrapImages() {
 				if(images[i].startsWith(imageWildcard)) {
 					console.log(i, images[i])
 					try {
+						const imageName = `${images[i].split(/[\/]/).pop()?.replace(/.png|.jpg|.jpeg/gi, '')}.jpg`;
+						const imagePath = `images/${imageName}`;
+						const imageAlreadyExists = await imageExists(imagePath);
+
+						if (imageAlreadyExists) {
+							console.log('Skipped:', images[i], 'has already been downloaded.');
+							continue;
+						}
+
 						result = await download(images[i], `images/${images[i].split(/[\/]/).pop()?.replace(/.png|.jpg|.jpeg/gi,'')}.jpg`);
 						if (result === true) {
 							console.log('Success:', images[i], 'has been downloaded successfully.');

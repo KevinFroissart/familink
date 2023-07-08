@@ -96,42 +96,53 @@ var download = function (url, destination) { return new Promise(function (resolv
         reject(error);
     });
 }); };
-function scrapImages() {
-    var _a;
+function imageExists(imagePath) {
     return __awaiter(this, void 0, void 0, function () {
-        var browser, page, url, e_1, e_2, result, images, i, e_3;
-        return __generator(this, function (_b) {
-            switch (_b.label) {
+        return __generator(this, function (_a) {
+            return [2 /*return*/, new Promise(function (resolve) {
+                    fs.access(imagePath, fs.constants.F_OK, function (error) {
+                        resolve(!error);
+                    });
+                })];
+        });
+    });
+}
+function scrapImages() {
+    var _a, _b;
+    return __awaiter(this, void 0, void 0, function () {
+        var browser, page, url, e_1, e_2, result, images, i, imageName, imagePath, imageAlreadyExists, e_3;
+        return __generator(this, function (_c) {
+            switch (_c.label) {
                 case 0: return [4 /*yield*/, puppeteer_1["default"].launch({ headless: config_json_1["default"].headless })];
                 case 1:
-                    browser = _b.sent();
-                    _b.label = 2;
+                    browser = _c.sent();
+                    _c.label = 2;
                 case 2:
-                    _b.trys.push([2, , 29, 31]);
+                    _c.trys.push([2, , 30, 32]);
                     return [4 /*yield*/, browser.newPage()];
                 case 3:
-                    page = _b.sent();
+                    page = _c.sent();
                     return [4 /*yield*/, page.goto(loginUrl)];
                 case 4:
-                    _b.sent();
+                    _c.sent();
                     return [4 /*yield*/, sleep(100)];
                 case 5:
-                    _b.sent();
+                    _c.sent();
                     console.log('Page loaded');
-                    _b.label = 6;
+                    _c.label = 6;
                 case 6:
-                    _b.trys.push([6, 18, , 19]);
+                    _c.trys.push([6, 18, , 19]);
                     // On récupère le champ de login et de password et on les remplit
                     return [4 /*yield*/, page.waitForSelector('familink-input[controlname="email"] input')];
                 case 7:
                     // On récupère le champ de login et de password et on les remplit
-                    _b.sent();
+                    _c.sent();
                     return [4 /*yield*/, page.type('familink-input[controlname="email"] input', config_json_1["default"].login, { delay: 25 })];
                 case 8:
-                    _b.sent();
+                    _c.sent();
                     return [4 /*yield*/, page.type('familink-input[controlname="password"] input', config_json_1["default"].password, { delay: 25 })];
                 case 9:
-                    _b.sent();
+                    _c.sent();
                     // On envoie le formulaire
                     return [4 /*yield*/, Promise.all([
                             page.waitForNavigation(),
@@ -139,56 +150,65 @@ function scrapImages() {
                         ])];
                 case 10:
                     // On envoie le formulaire
-                    _b.sent();
-                    _b.label = 11;
+                    _c.sent();
+                    _c.label = 11;
                 case 11:
                     if (!true) return [3 /*break*/, 17];
-                    _b.label = 12;
+                    _c.label = 12;
                 case 12:
-                    _b.trys.push([12, 14, , 15]);
+                    _c.trys.push([12, 14, , 15]);
                     return [4 /*yield*/, page.evaluate(function () { return location.href; })];
                 case 13:
-                    url = _b.sent();
+                    url = _c.sent();
                     if (url.match(devicesUrl))
                         return [3 /*break*/, 17];
                     return [3 /*break*/, 15];
                 case 14:
-                    e_1 = _b.sent();
+                    e_1 = _c.sent();
                     console.error(e_1);
                     return [3 /*break*/, 15];
                 case 15: return [4 /*yield*/, sleep(100)];
                 case 16:
-                    _b.sent();
+                    _c.sent();
                     return [3 /*break*/, 11];
                 case 17: return [3 /*break*/, 19];
                 case 18:
-                    e_2 = _b.sent();
+                    e_2 = _c.sent();
                     console.log('Login Error', e_2);
                     return [3 /*break*/, 19];
                 case 19:
                     result = void 0;
                     return [4 /*yield*/, page.goto(picturesUrl)];
                 case 20:
-                    _b.sent();
+                    _c.sent();
                     return [4 /*yield*/, sleep(5000)];
                 case 21:
-                    _b.sent();
+                    _c.sent();
                     return [4 /*yield*/, page.evaluate(function () { return Array.from(document.images, function (e) { return e.src.replace('thumbnails', 'resized').replace('_360x285', ''); }); })];
                 case 22:
-                    images = _b.sent();
+                    images = _c.sent();
                     console.log(images[0]);
                     i = 0;
-                    _b.label = 23;
+                    _c.label = 23;
                 case 23:
-                    if (!(i < images.length)) return [3 /*break*/, 28];
-                    if (!images[i].startsWith(imageWildcard)) return [3 /*break*/, 27];
+                    if (!(i < images.length)) return [3 /*break*/, 29];
+                    if (!images[i].startsWith(imageWildcard)) return [3 /*break*/, 28];
                     console.log(i, images[i]);
-                    _b.label = 24;
+                    _c.label = 24;
                 case 24:
-                    _b.trys.push([24, 26, , 27]);
-                    return [4 /*yield*/, download(images[i], "images/".concat((_a = images[i].split(/[\/]/).pop()) === null || _a === void 0 ? void 0 : _a.replace(/.png|.jpg|.jpeg/gi, ''), ".jpg"))];
+                    _c.trys.push([24, 27, , 28]);
+                    imageName = "".concat((_a = images[i].split(/[\/]/).pop()) === null || _a === void 0 ? void 0 : _a.replace(/.png|.jpg|.jpeg/gi, ''), ".jpg");
+                    imagePath = "images/".concat(imageName);
+                    return [4 /*yield*/, imageExists(imagePath)];
                 case 25:
-                    result = _b.sent();
+                    imageAlreadyExists = _c.sent();
+                    if (imageAlreadyExists) {
+                        console.log('Skipped:', images[i], 'has already been downloaded.');
+                        return [3 /*break*/, 28];
+                    }
+                    return [4 /*yield*/, download(images[i], "images/".concat((_b = images[i].split(/[\/]/).pop()) === null || _b === void 0 ? void 0 : _b.replace(/.png|.jpg|.jpeg/gi, ''), ".jpg"))];
+                case 26:
+                    result = _c.sent();
                     if (result === true) {
                         console.log('Success:', images[i], 'has been downloaded successfully.');
                     }
@@ -196,20 +216,20 @@ function scrapImages() {
                         console.error('Error:', images[i], 'was not downloaded.');
                         console.error(result);
                     }
-                    return [3 /*break*/, 27];
-                case 26:
-                    e_3 = _b.sent();
-                    console.error(e_3);
-                    return [3 /*break*/, 27];
+                    return [3 /*break*/, 28];
                 case 27:
+                    e_3 = _c.sent();
+                    console.error(e_3);
+                    return [3 /*break*/, 28];
+                case 28:
                     i++;
                     return [3 /*break*/, 23];
-                case 28: return [3 /*break*/, 31];
-                case 29: return [4 /*yield*/, browser.close()];
-                case 30:
-                    _b.sent();
+                case 29: return [3 /*break*/, 32];
+                case 30: return [4 /*yield*/, browser.close()];
+                case 31:
+                    _c.sent();
                     return [7 /*endfinally*/];
-                case 31: return [2 /*return*/];
+                case 32: return [2 /*return*/];
             }
         });
     });
