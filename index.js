@@ -66,6 +66,10 @@ var puppeteer_1 = __importDefault(require("puppeteer"));
 var config_json_1 = __importDefault(require("./config.json"));
 var fs = __importStar(require("fs"));
 var https_1 = __importDefault(require("https"));
+var loginUrl = 'https://app.familinkframe.com/fr/login';
+var devicesUrl = 'https://app.familinkframe.com/fr/devices';
+var picturesUrl = 'https://app.familinkframe.com/fr/devices/16961/pictures';
+var imageWildcard = 'https://media.familinkframe.com/';
 function sleep(ms) {
     return __awaiter(this, void 0, void 0, function () {
         return __generator(this, function (_a) {
@@ -80,18 +84,17 @@ function sleep(ms) {
 }
 var download = function (url, destination) { return new Promise(function (resolve, reject) {
     var file = fs.createWriteStream(destination, { flags: 'a+' });
-    try {
-        https_1["default"].get(url, function (response) {
-            response.pipe(file);
-            file.on('finish', function () {
-                file.close();
-                resolve(true);
-            });
+    var request = https_1["default"].get(url, function (response) {
+        response.pipe(file);
+        file.on('finish', function () {
+            file.close();
+            resolve(true);
         });
-    }
-    catch (e) {
-        console.log(e);
-    }
+    });
+    request.on('error', function (error) {
+        console.error(error);
+        reject(error);
+    });
 }); };
 function scrapImages() {
     var _a;
@@ -108,7 +111,7 @@ function scrapImages() {
                     return [4 /*yield*/, browser.newPage()];
                 case 3:
                     page = _b.sent();
-                    return [4 /*yield*/, page.goto('https://app.familinkframe.com/fr/login')];
+                    return [4 /*yield*/, page.goto(loginUrl)];
                 case 4:
                     _b.sent();
                     return [4 /*yield*/, sleep(100)];
@@ -130,18 +133,12 @@ function scrapImages() {
                 case 9:
                     _b.sent();
                     // On envoie le formulaire
-                    // await page.evaluate(() =>
-                    // 	document.querySelector<HTMLInputElement>('.connect-button')!.click()
-                    // )
                     return [4 /*yield*/, Promise.all([
                             page.waitForNavigation(),
                             page.click('.submit-button-container button[type="submit"]'),
                         ])];
                 case 10:
                     // On envoie le formulaire
-                    // await page.evaluate(() =>
-                    // 	document.querySelector<HTMLInputElement>('.connect-button')!.click()
-                    // )
                     _b.sent();
                     _b.label = 11;
                 case 11:
@@ -152,12 +149,12 @@ function scrapImages() {
                     return [4 /*yield*/, page.evaluate(function () { return location.href; })];
                 case 13:
                     url = _b.sent();
-                    if (url.match('https://app.familinkframe.com/fr/devices'))
+                    if (url.match(devicesUrl))
                         return [3 /*break*/, 17];
                     return [3 /*break*/, 15];
                 case 14:
                     e_1 = _b.sent();
-                    console.log(e_1);
+                    console.error(e_1);
                     return [3 /*break*/, 15];
                 case 15: return [4 /*yield*/, sleep(100)];
                 case 16:
@@ -170,7 +167,7 @@ function scrapImages() {
                     return [3 /*break*/, 19];
                 case 19:
                     result = void 0;
-                    return [4 /*yield*/, page.goto('https://app.familinkframe.com/fr/devices/16961/pictures')];
+                    return [4 /*yield*/, page.goto(picturesUrl)];
                 case 20:
                     _b.sent();
                     return [4 /*yield*/, sleep(5000)];
@@ -184,7 +181,7 @@ function scrapImages() {
                     _b.label = 23;
                 case 23:
                     if (!(i < images.length)) return [3 /*break*/, 28];
-                    if (!images[i].startsWith('https://media.familinkframe.com/')) return [3 /*break*/, 27];
+                    if (!images[i].startsWith(imageWildcard)) return [3 /*break*/, 27];
                     console.log(i, images[i]);
                     _b.label = 24;
                 case 24:
@@ -196,13 +193,13 @@ function scrapImages() {
                         console.log('Success:', images[i], 'has been downloaded successfully.');
                     }
                     else {
-                        console.log('Error:', images[i], 'was not downloaded.');
+                        console.error('Error:', images[i], 'was not downloaded.');
                         console.error(result);
                     }
                     return [3 /*break*/, 27];
                 case 26:
                     e_3 = _b.sent();
-                    console.log(e_3);
+                    console.error(e_3);
                     return [3 /*break*/, 27];
                 case 27:
                     i++;
