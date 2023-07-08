@@ -30,25 +30,27 @@ async function scrapImages() {
     try {
         // On se dirige sur la page de login
         const page = await browser.newPage()
-		await page.goto('https://web.familinkframe.com/fr/#/login')
+		await page.goto('https://app.familinkframe.com/fr/login')
 		await sleep(100)
+		console.log('Page loaded')
 
         try {
-            // On récupère le champ de login et de password et on les remplits
-			await page.waitForSelector('#email');
-			await page.type('#email', config.login, {delay: 25})
-			await page.type('#password', config.password, {delay: 25})
+            // On récupère le champ de login et de password et on les remplit
+			await page.waitForSelector('familink-input[controlname="email"] input');
+			await page.type('familink-input[controlname="email"] input', config.login, { delay: 25 });
+			await page.type('familink-input[controlname="password"] input', config.password, { delay: 25 });
 			
             // On envoie le formulaire
-            await page.evaluate(() =>
-				document.querySelector<HTMLInputElement>('.connect-button')!.click()
-			)
+			await Promise.all([
+				page.waitForNavigation(), // Attendre la redirection après soumission du formulaire
+				page.click('.submit-button-container button[type="submit"]'),
+			]);
 
             // On attends la redirection
             while (true) {
 				try {
 					const url = await page.evaluate(() => location.href)
-					if (url.match('https://web.familinkframe.com/fr/#/devices')) break
+					if (url.match('https://app.familinkframe.com/fr/devices')) break
 				} catch (e) {
 					console.log(e)
 				}
@@ -60,7 +62,7 @@ async function scrapImages() {
 
 		{
 			let result;
-			await page.goto('https://web.familinkframe.com/fr/#/devices/16961/photos')
+			await page.goto('https://app.familinkframe.com/fr/devices/16961/pictures')
 			await sleep(5000)
 			const images = await page.evaluate(() => Array.from(document.images, e => e.src.replace('thumbnails', 'resized').replace('_360x285', '')));
 			console.log(images[0])
@@ -88,7 +90,7 @@ async function scrapImages() {
 
 async function main() {
 
-	scrapImages()
+	await scrapImages()
 
 }
 

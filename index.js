@@ -108,36 +108,40 @@ function scrapImages() {
                     return [4 /*yield*/, browser.newPage()];
                 case 3:
                     page = _b.sent();
-                    return [4 /*yield*/, page.goto('https://web.familinkframe.com/fr/#/login')];
+                    return [4 /*yield*/, page.goto('https://app.familinkframe.com/fr/login')];
                 case 4:
                     _b.sent();
                     return [4 /*yield*/, sleep(100)];
                 case 5:
                     _b.sent();
+                    console.log('Page loaded');
                     _b.label = 6;
                 case 6:
                     _b.trys.push([6, 18, , 19]);
-                    // On récupère le champ de login et de password et on les remplits
-                    return [4 /*yield*/, page.waitForSelector('#email')];
+                    // On récupère le champ de login et de password et on les remplit
+                    return [4 /*yield*/, page.waitForSelector('familink-input[controlname="email"] input')];
                 case 7:
-                    // On récupère le champ de login et de password et on les remplits
+                    // On récupère le champ de login et de password et on les remplit
                     _b.sent();
-                    return [4 /*yield*/, page.type('#email', config_json_1["default"].login, { delay: 25 })];
+                    return [4 /*yield*/, page.type('familink-input[controlname="email"] input', config_json_1["default"].login, { delay: 25 })];
                 case 8:
                     _b.sent();
-                    return [4 /*yield*/, page.type('#password', config_json_1["default"].password, { delay: 25 })
-                        // On envoie le formulaire
-                    ];
+                    return [4 /*yield*/, page.type('familink-input[controlname="password"] input', config_json_1["default"].password, { delay: 25 })];
                 case 9:
                     _b.sent();
                     // On envoie le formulaire
-                    return [4 /*yield*/, page.evaluate(function () {
-                            return document.querySelector('.connect-button').click();
-                        })
-                        // On attends la redirection
-                    ];
+                    // await page.evaluate(() =>
+                    // 	document.querySelector<HTMLInputElement>('.connect-button')!.click()
+                    // )
+                    return [4 /*yield*/, Promise.all([
+                            page.waitForNavigation(),
+                            page.click('.submit-button-container button[type="submit"]'),
+                        ])];
                 case 10:
                     // On envoie le formulaire
+                    // await page.evaluate(() =>
+                    // 	document.querySelector<HTMLInputElement>('.connect-button')!.click()
+                    // )
                     _b.sent();
                     _b.label = 11;
                 case 11:
@@ -148,7 +152,7 @@ function scrapImages() {
                     return [4 /*yield*/, page.evaluate(function () { return location.href; })];
                 case 13:
                     url = _b.sent();
-                    if (url.match('https://web.familinkframe.com/fr/#/devices'))
+                    if (url.match('https://app.familinkframe.com/fr/devices'))
                         return [3 /*break*/, 17];
                     return [3 /*break*/, 15];
                 case 14:
@@ -166,7 +170,7 @@ function scrapImages() {
                     return [3 /*break*/, 19];
                 case 19:
                     result = void 0;
-                    return [4 /*yield*/, page.goto('https://web.familinkframe.com/fr/#/devices/16961/photos')];
+                    return [4 /*yield*/, page.goto('https://app.familinkframe.com/fr/devices/16961/pictures')];
                 case 20:
                     _b.sent();
                     return [4 /*yield*/, sleep(5000)];
@@ -216,8 +220,12 @@ function scrapImages() {
 function main() {
     return __awaiter(this, void 0, void 0, function () {
         return __generator(this, function (_a) {
-            scrapImages();
-            return [2 /*return*/];
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, scrapImages()];
+                case 1:
+                    _a.sent();
+                    return [2 /*return*/];
+            }
         });
     });
 }
