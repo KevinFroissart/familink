@@ -1,0 +1,3 @@
+# Téléchargement des images, tous les jours à 00h, 6h, 12h et 18h.
+ 0 */6 * * * /usr/bin/date >> /home/kfroissart/git/familink/familink-cron.log
+ 0 */6 * * * /usr/bin/node /home/kfroissart/git/familink/index.js >> /home/kfroissart/git/familink/familink-cron.log 2>

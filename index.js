@@ -70,6 +70,8 @@ var loginUrl = 'https://app.familinkframe.com/fr/login';
 var devicesUrl = 'https://app.familinkframe.com/fr/devices';
 var picturesUrl = 'https://app.familinkframe.com/fr/devices/16961/pictures';
 var imageWildcard = 'https://media.familinkframe.com/';
+var chromiumPath = '/usr/bin/chromium-browser';
+var imageFolderPath = '/home/kfroissart/git/familink/images/';
 function sleep(ms) {
     return __awaiter(this, void 0, void 0, function () {
         return __generator(this, function (_a) {
@@ -108,41 +110,41 @@ function imageExists(imagePath) {
     });
 }
 function scrapImages() {
-    var _a, _b;
+    var _a;
     return __awaiter(this, void 0, void 0, function () {
         var browser, page, url, e_1, e_2, result, images, i, imageName, imagePath, imageAlreadyExists, e_3;
-        return __generator(this, function (_c) {
-            switch (_c.label) {
-                case 0: return [4 /*yield*/, puppeteer_1["default"].launch({ headless: config_json_1["default"].headless })];
+        return __generator(this, function (_b) {
+            switch (_b.label) {
+                case 0: return [4 /*yield*/, puppeteer_1["default"].launch({ headless: config_json_1["default"].headless, executablePath: chromiumPath })];
                 case 1:
-                    browser = _c.sent();
-                    _c.label = 2;
+                    browser = _b.sent();
+                    _b.label = 2;
                 case 2:
-                    _c.trys.push([2, , 30, 32]);
+                    _b.trys.push([2, , 30, 32]);
                     return [4 /*yield*/, browser.newPage()];
                 case 3:
-                    page = _c.sent();
+                    page = _b.sent();
                     return [4 /*yield*/, page.goto(loginUrl)];
                 case 4:
-                    _c.sent();
+                    _b.sent();
                     return [4 /*yield*/, sleep(100)];
                 case 5:
-                    _c.sent();
+                    _b.sent();
                     console.log('Page loaded');
-                    _c.label = 6;
+                    _b.label = 6;
                 case 6:
-                    _c.trys.push([6, 18, , 19]);
+                    _b.trys.push([6, 18, , 19]);
                     // On récupère le champ de login et de password et on les remplit
                     return [4 /*yield*/, page.waitForSelector('familink-input[controlname="email"] input')];
                 case 7:
                     // On récupère le champ de login et de password et on les remplit
-                    _c.sent();
+                    _b.sent();
                     return [4 /*yield*/, page.type('familink-input[controlname="email"] input', config_json_1["default"].login, { delay: 25 })];
                 case 8:
-                    _c.sent();
+                    _b.sent();
                     return [4 /*yield*/, page.type('familink-input[controlname="password"] input', config_json_1["default"].password, { delay: 25 })];
                 case 9:
-                    _c.sent();
+                    _b.sent();
                     // On envoie le formulaire
                     return [4 /*yield*/, Promise.all([
                             page.waitForNavigation(),
@@ -150,65 +152,65 @@ function scrapImages() {
                         ])];
                 case 10:
                     // On envoie le formulaire
-                    _c.sent();
-                    _c.label = 11;
+                    _b.sent();
+                    _b.label = 11;
                 case 11:
                     if (!true) return [3 /*break*/, 17];
-                    _c.label = 12;
+                    _b.label = 12;
                 case 12:
-                    _c.trys.push([12, 14, , 15]);
+                    _b.trys.push([12, 14, , 15]);
                     return [4 /*yield*/, page.evaluate(function () { return location.href; })];
                 case 13:
-                    url = _c.sent();
+                    url = _b.sent();
                     if (url.match(devicesUrl))
                         return [3 /*break*/, 17];
                     return [3 /*break*/, 15];
                 case 14:
-                    e_1 = _c.sent();
+                    e_1 = _b.sent();
                     console.error(e_1);
                     return [3 /*break*/, 15];
                 case 15: return [4 /*yield*/, sleep(100)];
                 case 16:
-                    _c.sent();
+                    _b.sent();
                     return [3 /*break*/, 11];
                 case 17: return [3 /*break*/, 19];
                 case 18:
-                    e_2 = _c.sent();
+                    e_2 = _b.sent();
                     console.log('Login Error', e_2);
                     return [3 /*break*/, 19];
                 case 19:
                     result = void 0;
                     return [4 /*yield*/, page.goto(picturesUrl)];
                 case 20:
-                    _c.sent();
+                    _b.sent();
                     return [4 /*yield*/, sleep(5000)];
                 case 21:
-                    _c.sent();
+                    _b.sent();
                     return [4 /*yield*/, page.evaluate(function () { return Array.from(document.images, function (e) { return e.src.replace('thumbnails', 'resized').replace('_360x285', ''); }); })];
                 case 22:
-                    images = _c.sent();
+                    images = _b.sent();
                     console.log(images[0]);
                     i = 0;
-                    _c.label = 23;
+                    _b.label = 23;
                 case 23:
                     if (!(i < images.length)) return [3 /*break*/, 29];
                     if (!images[i].startsWith(imageWildcard)) return [3 /*break*/, 28];
                     console.log(i, images[i]);
-                    _c.label = 24;
+                    _b.label = 24;
                 case 24:
-                    _c.trys.push([24, 27, , 28]);
+                    _b.trys.push([24, 27, , 28]);
                     imageName = "".concat((_a = images[i].split(/[\/]/).pop()) === null || _a === void 0 ? void 0 : _a.replace(/.png|.jpg|.jpeg/gi, ''), ".jpg");
-                    imagePath = "images/".concat(imageName);
+                    imagePath = "".concat(imageFolderPath, "/").concat(imageName);
                     return [4 /*yield*/, imageExists(imagePath)];
                 case 25:
-                    imageAlreadyExists = _c.sent();
+                    imageAlreadyExists = _b.sent();
                     if (imageAlreadyExists) {
                         console.log('Skipped:', images[i], 'has already been downloaded.');
                         return [3 /*break*/, 28];
                     }
-                    return [4 /*yield*/, download(images[i], "images/".concat((_b = images[i].split(/[\/]/).pop()) === null || _b === void 0 ? void 0 : _b.replace(/.png|.jpg|.jpeg/gi, ''), ".jpg"))];
+                    return [4 /*yield*/, download(images[i], imagePath)];
                 case 26:
-                    result = _c.sent();
+                    result = _b.sent();
                     if (result === true) {
                         console.log('Success:', images[i], 'has been downloaded successfully.');
                     }
@@ -218,7 +220,7 @@ function scrapImages() {
                     }
                     return [3 /*break*/, 28];
                 case 27:
-                    e_3 = _c.sent();
+                    e_3 = _b.sent();
                     console.error(e_3);
                     return [3 /*break*/, 28];
                 case 28:
@@ -227,7 +229,7 @@ function scrapImages() {
                 case 29: return [3 /*break*/, 32];
                 case 30: return [4 /*yield*/, browser.close()];
                 case 31:
-                    _c.sent();
+                    _b.sent();
                     return [7 /*endfinally*/];
                 case 32: return [2 /*return*/];
             }

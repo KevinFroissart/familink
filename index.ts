@@ -7,6 +7,8 @@ const loginUrl = 'https://app.familinkframe.com/fr/login'
 const devicesUrl = 'https://app.familinkframe.com/fr/devices'
 const picturesUrl = 'https://app.familinkframe.com/fr/devices/16961/pictures'
 const imageWildcard = 'https://media.familinkframe.com/'
+const chromiumPath = '/usr/bin/chromium-browser'
+const imageFolderPath = '/home/kfroissart/git/familink/images/'
 
 async function sleep(ms: number): Promise<void> {
 	await new Promise(ok => setTimeout(() => ok(null), ms))
@@ -38,7 +40,7 @@ async function imageExists(imagePath: string): Promise<boolean> {
 
 async function scrapImages() {
 	// Ouverture du navigateur
-    const browser = await puppeteer.launch({ headless: config.headless })
+    const browser = await puppeteer.launch({ headless: config.headless, executablePath: chromiumPath })
     try {
         // On se dirige sur la page de login
         const page = await browser.newPage()
@@ -83,7 +85,7 @@ async function scrapImages() {
 					console.log(i, images[i])
 					try {
 						const imageName = `${images[i].split(/[\/]/).pop()?.replace(/.png|.jpg|.jpeg/gi, '')}.jpg`;
-						const imagePath = `images/${imageName}`;
+						const imagePath = `${imageFolderPath}/${imageName}`;
 						const imageAlreadyExists = await imageExists(imagePath);
 
 						if (imageAlreadyExists) {
@@ -91,7 +93,7 @@ async function scrapImages() {
 							continue;
 						}
 
-						result = await download(images[i], `images/${images[i].split(/[\/]/).pop()?.replace(/.png|.jpg|.jpeg/gi,'')}.jpg`);
+						result = await download(images[i], imagePath);
 						if (result === true) {
 							console.log('Success:', images[i], 'has been downloaded successfully.');
 						} else {
