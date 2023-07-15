@@ -43,6 +43,9 @@ WantedBy=default.target
 ```   
 `sudo systemctl enable slideshow.service`   
 `sudo journalctl -u slideshow.service`  
+If you change the script settings the service will have to be restarded.   
+You can either reboot the raspberry or simply `sudo systemctl restart slideshow.service`   
+<br>
 Disabled screen save mode :    
 `xset s off`    
 `xset -dpms`
