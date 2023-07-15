@@ -1,5 +1,8 @@
 node_modules
 config.json
 images/**.jpg
+old_images/**.jpg
+last_save/**.jpg
 .idea
 familink-cron.log
+.git-old/
